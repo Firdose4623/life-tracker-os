@@ -14,18 +14,23 @@ A personal analytics system to track **health, productivity, career and growth**
 # -----------------------------
 # Load CSV files
 # -----------------------------
+import gspread
+from google.oauth2.service_account import Credentials
+import streamlit as st
+
 scope = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
-creds = Credentials.from_service_account_info(
+
+credentials = Credentials.from_service_account_info(
     st.secrets["gcp_service_account"],
     scopes=scope
 )
 
-client = gspread.authorize(creds)
+gc = gspread.authorize(credentials)
 
-sheet = client.open("life_tracker_os")
+sheet = gc.open("life_tracker_os")
 
 daily_sheet = sheet.worksheet("daily_log")
 linkedin_sheet = sheet.worksheet("linkedin")
@@ -503,6 +508,7 @@ if page == "💻 Freelancing":
         st.cache_data.clear()
 
         st.rerun()
+
 
 
 
