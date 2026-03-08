@@ -37,15 +37,21 @@ from io import StringIO
 g = Github(st.secrets["github_token"])
 repo = g.get_repo("Firdose4623/life-tracker-os")
 
+
 @st.cache_data(ttl=60)
 def load_csv(path):
-    file = repo.get_contents(path)
-    content = base64.b64decode(file.content).decode("utf-8")
-    return pd.read_csv(StringIO(content))
+    try:
+        file = repo.get_contents(path)
+        content = base64.b64decode(file.content).decode("utf-8")
+        return pd.read_csv(StringIO(content))
+    except:
+        return pd.DataFrame()
+
 
 daily = load_csv("data/daily_log.csv")
 linkedin = load_csv("data/linkedin.csv")
 freelance = load_csv("data/freelance.csv")
+
 
 # Handle empty CSVs
 if daily.empty:
@@ -63,6 +69,12 @@ if freelance.empty:
         "date","portfolio_project_hours",
         "portfolio_projects_done","portfolio_website_progress"
     ])
+
+
+# Fill missing values safely
+daily = daily.fillna(0)
+linkedin = linkedin.fillna(0)
+freelance = freelance.fillna(0)
 
 # -----------------------------
 # Sidebar Navigation
@@ -320,15 +332,24 @@ if page == "📊 Dashboard":
     st.markdown("### Freelancing Progress")
 
     if not freelance.empty:
-
-        total_projects = int(freelance["portfolio_projects_done"].max())
-        website_sessions = int(freelance["portfolio_website_progress"].sum())
-
-        col1,col2 = st.columns(2)
-
+    
+        # Safe conversion to numbers
+        projects_series = pd.to_numeric(
+            freelance["portfolio_projects_done"], errors="coerce"
+        )
+    
+        website_series = pd.to_numeric(
+            freelance["portfolio_website_progress"], errors="coerce"
+        ).fillna(0)
+    
+        # Handle empty columns safely
+        total_projects = int(projects_series.max()) if not projects_series.isna().all() else 0
+        website_sessions = int(website_series.sum())
+    
+        col1, col2 = st.columns(2)
+    
         col1.metric("Portfolio Projects Completed", total_projects)
         col2.metric("Website Progress Sessions", website_sessions)
-
     st.divider()
 
 # -----------------------------
@@ -519,6 +540,7 @@ if page == "💻 Freelancing":
         st.success("Saved!")
         st.cache_data.clear()
         st.rerun()
+
 
 
 
