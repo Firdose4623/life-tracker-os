@@ -277,12 +277,13 @@ if page == "📊 Dashboard":
         st.caption(f"{dsa_done}/{DSA_TARGET}")
 
     LINKEDIN_TARGET = 2000
+    followers = 1263
 
-    followers = (
-        int(linkedin["followers"].iloc[-1])
-        if not linkedin.empty else 1263
-    )
-
+    if not linkedin.empty:
+        last_val = pd.to_numeric(linkedin["followers"].iloc[-1], errors="coerce")
+        if not pd.isna(last_val):
+            followers = int(last_val)
+            
     with col3:
         st.write("LinkedIn Growth")
         st.progress(min(followers/LINKEDIN_TARGET,1))
@@ -518,6 +519,7 @@ if page == "💻 Freelancing":
         st.success("Saved!")
         st.cache_data.clear()
         st.rerun()
+
 
 
 
