@@ -360,9 +360,22 @@ if page == "📊 Dashboard":
 
     if not linkedin.empty:
 
-        fig = px.line(linkedin,x="date",y="followers")
-        st.plotly_chart(fig,use_container_width=True)
-
+        linkedin["date"] = pd.to_datetime(linkedin["date"])
+        linkedin["followers"] = pd.to_numeric(linkedin["followers"], errors="coerce")
+    
+        fig = px.line(
+            linkedin,
+            x="date",
+            y="followers",
+            markers=True
+        )
+    
+        fig.update_layout(
+            xaxis_title="Date",
+            yaxis_title="Followers"
+        )
+    
+        st.plotly_chart(fig, use_container_width=True)
     st.divider()
 
 # -----------------------------
@@ -540,6 +553,7 @@ if page == "💻 Freelancing":
         st.success("Saved!")
         st.cache_data.clear()
         st.rerun()
+
 
 
 
