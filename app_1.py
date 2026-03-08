@@ -18,12 +18,9 @@ scope = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/drive"
 ]
-import json
-
-creds_dict = json.loads(st.secrets["gcp_service_account"])
 
 creds = ServiceAccountCredentials.from_json_keyfile_dict(
-    creds_dict, scope
+    st.secrets["gcp_service_account"], scope
 )
 
 client = gspread.authorize(creds)
@@ -506,4 +503,5 @@ if page == "💻 Freelancing":
         st.cache_data.clear()
 
         st.rerun()
+
 
