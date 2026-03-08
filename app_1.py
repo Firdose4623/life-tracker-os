@@ -15,12 +15,13 @@ A personal analytics system to track **health, productivity, career and growth**
 # Load CSV files
 # -----------------------------
 scope = [
-    "https://spreadsheets.google.com/feeds",
+    "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
 
-creds = ServiceAccountCredentials.from_json_keyfile_dict(
-    st.secrets["gcp_service_account"], scope
+creds = Credentials.from_service_account_info(
+    st.secrets["gcp_service_account"],
+    scopes=scope
 )
 
 client = gspread.authorize(creds)
@@ -503,5 +504,6 @@ if page == "💻 Freelancing":
         st.cache_data.clear()
 
         st.rerun()
+
 
 
