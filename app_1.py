@@ -1,3 +1,15 @@
+def save_csv(df, path):
+
+    file = repo.get_contents(path)
+    csv_data = df.to_csv(index=False)
+
+    repo.update_file(
+        path,
+        "update data",
+        csv_data,
+        file.sha
+    )
+    
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -14,39 +26,28 @@ A personal analytics system to track **health, productivity, career and growth**
 # -----------------------------
 # Load CSV files
 # -----------------------------
-import gspread
-from google.oauth2.service_account import Credentials
-import streamlit as st
+# -----------------------------
+# Load CSV files from GitHub
+# -----------------------------
 
-scope = [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive"
-]
+from github import Github
+import base64
+from io import StringIO
 
-credentials = Credentials.from_service_account_info(
-    st.secrets["gcp_service_account"],
-    scopes=scope
-)
-
-client = gspread.authorize(credentials)
-
-# Open main spreadsheet
-sheet = client.open("life_tracker_os")
-
-daily_sheet = sheet.worksheet("daily_log")
-linkedin_sheet = sheet.worksheet("linkedin")
-freelance_sheet = sheet.worksheet("freelance")
+g = Github(st.secrets["github_token"])
+repo = g.get_repo("Firdose4623/life-tracker-os")
 
 @st.cache_data(ttl=60)
-def load_data():
-    daily = pd.DataFrame(daily_sheet.get_all_records())
-    linkedin = pd.DataFrame(linkedin_sheet.get_all_records())
-    freelance = pd.DataFrame(freelance_sheet.get_all_records())
-    return daily, linkedin, freelance
+def load_csv(path):
+    file = repo.get_contents(path)
+    content = base64.b64decode(file.content).decode("utf-8")
+    return pd.read_csv(StringIO(content))
 
-daily, linkedin, freelance = load_data()
+daily = load_csv("data/daily_log.csv")
+linkedin = load_csv("data/linkedin.csv")
+freelance = load_csv("data/freelance.csv")
 
-# Handle empty sheets (avoid errors)
+# Handle empty CSVs
 if daily.empty:
     daily = pd.DataFrame(columns=[
         "date","steps","sleep","exercise","healthy_meal","dsa",
@@ -197,21 +198,24 @@ if page == "📝 Daily Log":
 
     if st.button("Save Entry"):
 
-        daily_sheet.append_row([
-            str(date.today()),
-            steps,
-            sleep,
-            int(exercise),
-            int(healthy_meal),
-            int(dsa),
-            focus_hours,
-            ml_hours,
-            freelance_hours,
-            project_hours,
-            academic_hours,
-            class_hours
-        ])
-
+        new_row = pd.DataFrame([{
+            "date": str(date.today()),
+            "steps": steps,
+            "sleep": sleep,
+            "exercise": int(exercise),
+            "healthy_meal": int(healthy_meal),
+            "dsa": int(dsa),
+            "focus_hours": focus_hours,
+            "ml_hours": ml_hours,
+            "freelance_hours": freelance_hours,
+            "project_hours": project_hours,
+            "academic_hours": academic_hours,
+            "class_hours": class_hours
+        }])
+        
+        updated = pd.concat([daily, new_row])
+        save_csv(updated, "data/daily_log.csv")
+        
         st.success("Entry saved!")
         st.cache_data.clear()
         st.rerun()
@@ -474,12 +478,15 @@ if page == "🌐 LinkedIn":
 
     if st.button("Save LinkedIn Data"):
 
-        linkedin_sheet.append_row([
-            str(date.today()),
-            followers,
-            posts
-        ])
-
+        new = pd.DataFrame([{
+            "date": str(date.today()),
+            "followers": followers,
+            "posts": posts
+        }])
+        
+        updated = pd.concat([linkedin, new])
+        save_csv(updated, "data/linkedin.csv")
+        
         st.success("Saved!")
         st.cache_data.clear()
         st.rerun()
@@ -498,17 +505,20 @@ if page == "💻 Freelancing":
 
     if st.button("Save Freelance Progress"):
 
-        freelance_sheet.append_row([
-            str(date.today()),
-            project_hours,
-            projects_done,
-            int(website_progress)
-        ])
-
+        new = pd.DataFrame([{
+            "date": str(date.today()),
+            "portfolio_project_hours": project_hours,
+            "portfolio_projects_done": projects_done,
+            "portfolio_website_progress": int(website_progress)
+        }])
+        
+        updated = pd.concat([freelance, new])
+        save_csv(updated, "data/freelance.csv")
+        
         st.success("Saved!")
         st.cache_data.clear()
-
         st.rerun()
+
 
 
 
