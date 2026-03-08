@@ -375,6 +375,10 @@ if page == "📊 Dashboard":
             yaxis_title="Followers"
         )
     
+        fig.update_xaxes(
+            tickformat="%b %d"   # Example: Mar 08
+        )
+    
         st.plotly_chart(fig, use_container_width=True)
     st.divider()
 
@@ -553,6 +557,7 @@ if page == "💻 Freelancing":
         st.success("Saved!")
         st.cache_data.clear()
         st.rerun()
+
 
 
 
