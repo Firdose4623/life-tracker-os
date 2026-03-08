@@ -5,6 +5,7 @@ from datetime import date, datetime, timedelta
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 
 st.markdown("""
 # 🚀 Life Tracker OS
@@ -504,6 +505,7 @@ if page == "💻 Freelancing":
         st.cache_data.clear()
 
         st.rerun()
+
 
 
 
