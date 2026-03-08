@@ -18,9 +18,10 @@ scope = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
+import json
 
 creds = Credentials.from_service_account_info(
-    st.secrets["gcp_service_account"],
+    json.loads(st.secrets["gcp_service_account"]),
     scopes=scope
 )
 
@@ -504,6 +505,7 @@ if page == "💻 Freelancing":
         st.cache_data.clear()
 
         st.rerun()
+
 
 
 
