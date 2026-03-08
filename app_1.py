@@ -18,6 +18,12 @@ from datetime import date, datetime, timedelta
 import gspread
 from google.oauth2.service_account import Credentials
 
+st.set_page_config(
+    page_title="Life Tracker OS",
+    page_icon="🚀",
+    layout="wide"
+)
+
 st.markdown("""
 # 🚀 Life Tracker OS
 A personal analytics system to track **health, productivity, career and growth**.
@@ -557,6 +563,7 @@ if page == "💻 Freelancing":
         st.success("Saved!")
         st.cache_data.clear()
         st.rerun()
+
 
 
 
