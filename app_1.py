@@ -28,9 +28,10 @@ credentials = Credentials.from_service_account_info(
     scopes=scope
 )
 
-gc = gspread.authorize(credentials)
+client = gspread.authorize(credentials)
 
-sheet = gc.open("life_tracker_os")
+# Open main spreadsheet
+sheet = client.open("life_tracker_os")
 
 daily_sheet = sheet.worksheet("daily_log")
 linkedin_sheet = sheet.worksheet("linkedin")
@@ -508,6 +509,7 @@ if page == "💻 Freelancing":
         st.cache_data.clear()
 
         st.rerun()
+
 
 
 
