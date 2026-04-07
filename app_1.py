@@ -285,7 +285,7 @@ if page == "📊 Dashboard":
         st.caption(f"{today.timetuple().tm_yday}/365 days")
 
     DSA_TARGET = 454
-    DSA_INITIAL = 239
+    DSA_INITIAL = 250
 
     dsa_done = DSA_INITIAL + (int(daily["dsa"].sum()) if not daily.empty else 0)
 
